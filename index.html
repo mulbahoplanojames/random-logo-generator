@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random programming language logo picker</title>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@500;700&display=swap");
+      :root {
+        --color-background-primary: #000000;
+        --color-background-secondary: #0a0a0a;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #a0a0a0;
+        --color-text-tertiary: #666666;
+        --color-border-primary: #333333;
+        --color-border-secondary: #222222;
+        --color-border-tertiary: #1a1a1a;
+        --border-radius-sm: 4px;
+        --border-radius-md: 8px;
+        --border-radius-lg: 12px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: var(--color-background-primary);
+        color: var(--color-text-primary);
+      }
+      .app {
+        margin-top: 6rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        font-family: "Syne", sans-serif;
+        gap: 2.5rem;
+      }
+      .stage {
+        width: 260px;
+        height: 260px;
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--border-radius-lg);
+        background: rgb(41, 40, 40);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .stage.pop {
+        animation: pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(0.82);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .lang-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        display: block;
+      }
+      .lang-name {
+        font-family: "Space Mono", monospace;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        padding: 4px 12px;
+        border-radius: var(--border-radius-md);
+        border: 0.5px solid var(--color-border-tertiary);
+        transition:
+          color 0.25s,
+          background 0.2s;
+        user-select: none;
+      }
+      .lang-name.hidden-name {
+        color: transparent;
+        background: var(--color-border-secondary);
+        border-color: transparent;
+      }
+      .lang-name.hidden-name:hover {
+        background: var(--color-border-primary);
+      }
+      .lang-name.revealed {
+        color: var(--color-text-primary);
+        background: transparent;
+        border-color: var(--color-border-primary);
+      }
+      .lang-year {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+        font-family: "Space Mono", monospace;
+      }
+      .hint {
+        font-size: 11px;
+        font-family: "Space Mono", monospace;
+        color: var(--color-text-tertiary);
+        margin-top: -8px;
+      }
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-tertiary);
+      }
+      .empty-state i {
+        font-size: 40px;
+      }
+      .empty-text {
+        font-size: 13px;
+        font-family: "Space Mono", monospace;
+      }
+      .roll-btn {
+        font-family: "Syne", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        padding: 16px 48px;
+        border: 1px solid var(--color-text-primary);
+        border-radius: var(--border-radius-md);
+        background: var(--color-text-primary);
+        color: var(--color-background-primary);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+      }
+      .roll-btn:hover {
+        background: transparent;
+        color: var(--color-text-primary);
+        transform: translateY(-2px);
+      }
+      .roll-btn:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .counter {
+        font-family: "Space Mono", monospace;
+        font-size: 12px;
+        color: var(--color-text-tertiary);
+      }
+      .tag-chip {
+        font-size: 11px;
+        font-family: "Space Mono", monospace;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 0.5px solid var(--color-border-tertiary);
+        color: var(--color-text-secondary);
+        background: var(--color-background-primary);
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+      }
+
+      @media (max-width: 480px) {
+        .app {
+          gap: 1.5rem;
+          padding: 1rem;
+        }
+        .stage {
+          width: 220px;
+          height: 220px;
+        }
+        .lang-logo {
+          width: 80px;
+          height: 80px;
+        }
+        .roll-btn {
+          width: 100%;
+          max-width: 260px;
+          padding: 14px 24px;
+          font-size: 13px;
+        }
+        .sr-only {
+          font-size: 12px;
+          padding: 0.75rem;
+        }
+      }
+      .sr-only {
+        text-align: center;
+        width: 100%;
+        padding: 1rem;
+        font-family: "Space Mono", monospace;
+        font-size: 14px;
+        color: var(--color-text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <h2 class="sr-only">
+      Random programming language logo picker. Roll to see a logo, then click
+      the hidden name to reveal it.
+    </h2>
+
+    <div class="app">
+      <div class="stage" id="stage">
+        <div class="empty-state">
+          <i class="ti ti-code" aria-hidden="true"></i>
+          <span class="empty-text">press the button</span>
+        </div>
+      </div>
+
+      <button class="roll-btn" id="rollBtn" onclick="roll()">
+        <i
+          class="ti ti-refresh"
+          aria-hidden="true"
+          style="font-size: 14px; margin-right: 8px; vertical-align: -1px"
+        ></i
+        >Roll Language
+      </button>
+
+      <span class="counter" id="counter"></span>
+    </div>
+  </body>
+
+  <script>
+    const langs = [
+      {
+        name: "Python",
+        year: 1991,
+        tag: "scripting",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+      },
+      {
+        name: "JavaScript",
+        year: 1995,
+        tag: "web",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+      },
+      {
+        name: "TypeScript",
+        year: 2012,
+        tag: "web",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
+      },
+      {
+        name: "Rust",
+        year: 2010,
+        tag: "systems",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-original.svg",
+      },
+      {
+        name: "Go",
+        year: 2009,
+        tag: "backend",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg",
+      },
+      {
+        name: "Java",
+        year: 1995,
+        tag: "enterprise",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
+      },
+      {
+        name: "C",
+        year: 1972,
+        tag: "systems",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg",
+      },
+      {
+        name: "C++",
+        year: 1983,
+        tag: "systems",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg",
+      },
+      {
+        name: "C#",
+        year: 2000,
+        tag: "enterprise",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg",
+      },
+      {
+        name: "Ruby",
+        year: 1995,
+        tag: "scripting",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original.svg",
+      },
+      {
+        name: "PHP",
+        year: 1994,
+        tag: "web",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg",
+      },
+      {
+        name: "Swift",
+        year: 2014,
+        tag: "mobile",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swift/swift-original.svg",
+      },
+      {
+        name: "Kotlin",
+        year: 2011,
+        tag: "mobile",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kotlin/kotlin-original.svg",
+      },
+      {
+        name: "R",
+        year: 1993,
+        tag: "data",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/r/r-original.svg",
+      },
+      {
+        name: "MATLAB",
+        year: 1984,
+        tag: "scientific",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/matlab/matlab-original.svg",
+      },
+      {
+        name: "Dart",
+        year: 2011,
+        tag: "mobile",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg",
+      },
+      {
+        name: "Haskell",
+        year: 1990,
+        tag: "functional",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/haskell/haskell-original.svg",
+      },
+      {
+        name: "Lua",
+        year: 1993,
+        tag: "scripting",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg",
+      },
+      {
+        name: "Perl",
+        year: 1987,
+        tag: "scripting",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/perl/perl-original.svg",
+      },
+      {
+        name: "Julia",
+        year: 2012,
+        tag: "scientific",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/julia/julia-original.svg",
+      },
+      {
+        name: "F#",
+        year: 2005,
+        tag: "functional",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fsharp/fsharp-original.svg",
+      },
+      {
+        name: "Erlang",
+        year: 1986,
+        tag: "functional",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/erlang/erlang-original.svg",
+      },
+      {
+        name: "Objective-C",
+        year: 1984,
+        tag: "mobile",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/objectivec/objectivec-plain.svg",
+      },
+      {
+        name: "COBOL",
+        year: 1959,
+        tag: "enterprise",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cobol/cobol-original.svg",
+      },
+      {
+        name: "Bash",
+        year: 1989,
+        tag: "shell",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg",
+      },
+      {
+        name: "PowerShell",
+        year: 2006,
+        tag: "shell",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/powershell/powershell-original.svg",
+      },
+      {
+        name: "Vim Script",
+        year: 1988,
+        tag: "scripting",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vim/vim-original.svg",
+      },
+      {
+        name: "Zig",
+        year: 2016,
+        tag: "systems",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/zig/zig-original.svg",
+      },
+      {
+        name: "Nim",
+        year: 2008,
+        tag: "systems",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nim/nim-original.svg",
+      },
+      {
+        name: "Crystal",
+        year: 2011,
+        tag: "systems",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/crystal/crystal-original.svg",
+      },
+      {
+        name: "Solidity",
+        year: 2014,
+        tag: "blockchain",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/solidity/solidity-original.svg",
+      },
+      {
+        name: "SASS",
+        year: 2006,
+        tag: "web",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg",
+      },
+      {
+        name: "CoffeeScript",
+        year: 2009,
+        tag: "web",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/coffeescript/coffeescript-original.svg",
+      },
+      {
+        name: "Racket",
+        year: 1994,
+        tag: "functional",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/racket/racket-original.svg",
+      },
+      {
+        name: "Prolog",
+        year: 1972,
+        tag: "logic",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prolog/prolog-original.svg",
+      },
+      {
+        name: "WebAssembly",
+        year: 2019,
+        tag: "web",
+        logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/wasm/wasm-original.svg",
+      },
+    ];
+
+    let count = 0;
+    let lastIdx = -1;
+
+    function revealName(el) {
+      el.classList.remove("hidden-name");
+      el.classList.add("revealed");
+      const hint = document.getElementById("hint");
+      if (hint) hint.style.display = "none";
+    }
+
+    function roll() {
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * langs.length);
+      } while (idx === lastIdx && langs.length > 1);
+      lastIdx = idx;
+      count++;
+
+      const lang = langs[idx];
+      const stage = document.getElementById("stage");
+
+      stage.classList.remove("pop");
+      void stage.offsetWidth;
+
+      stage.innerHTML = `
+    <img class="lang-logo" src="${lang.logo}" alt="programming language logo" />
+    <span class="lang-name hidden-name" onclick="revealName(this)" title="click to reveal">${lang.name}</span>
+    <span class="lang-year">est. ${lang.year}</span>
+    <span id="hint" class="hint">click name to reveal</span>
+    <span class="tag-chip">${lang.tag}</span>
+  `;
+      stage.classList.add("pop");
+
+      document.getElementById("counter").textContent =
+        `rolled ${count} time${count !== 1 ? "s" : ""}`;
+    }
+  </script>
+</html>
